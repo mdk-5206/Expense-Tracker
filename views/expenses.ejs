@@ -1,0 +1,79 @@
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Monthly Performance</h2>
+        <div class="d-flex">
+            <select id="mSelect" class="form-select me-2" onchange="changeMonth()">
+                <% ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].forEach((m, i) => { %>
+                    <option value="<%= i %>" <%= selectedMonth == i ? 'selected' : '' %>><%= m %></option>
+                <% }) %>
+            </select>
+            <a href="/expenses/add" class="btn btn-primary">+ New Entry</a>
+        </div>
+    </div>
+
+    <div class="row mb-4 text-white">
+        <div class="col-md-4"><div class="card bg-success p-3">Income: $<%= totals.income.toFixed(2) %></div></div>
+        <div class="col-md-4"><div class="card bg-danger p-3">Expenses: $<%= totals.expenses.toFixed(2) %></div></div>
+        <div class="col-md-4"><div class="card bg-primary p-3">Balance: $<%= totals.balance.toFixed(2) %></div></div>
+    </div>
+
+    <div class="card shadow-sm p-3 mb-4">
+        <canvas id="myChart" style="height: 350px;"></canvas>
+    </div>
+
+    <div class="card shadow-sm">
+        <table class="table table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% expenses.forEach(exp => { %>
+                    <tr>
+                        <td><%= new Date(exp.date).toLocaleDateString() %></td>
+                        <td><%= exp.category %></td>
+                        <td><span class="badge <%= exp.type === 'income' ? 'bg-success' : 'bg-danger' %>"><%= exp.type %></span></td>
+                        <td>$<%= exp.amount.toFixed(2) %></td>
+                        <td>
+                            <form action="/expenses/delete/<%= exp._id %>" method="POST">
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function changeMonth() {
+        window.location.href = `/expenses?month=${document.getElementById('mSelect').value}`;
+    }
+
+    // Fix editor errors by parsing a stringified JSON
+    const gData = JSON.parse('<%- JSON.stringify(graphData) %>');
+
+    new Chart(document.getElementById('myChart'), {
+        type: 'line',
+        data: {
+            labels: gData.labels,
+            datasets: [
+                { label: 'Income', data: gData.income, borderColor: '#198754', tension: 0.3 },
+                { label: 'Expenses', data: gData.expenses, borderColor: '#dc3545', tension: 0.3 },
+                { label: 'Balance', data: gData.balance, borderColor: '#0d6efd', backgroundColor: 'rgba(13, 110, 253, 0.1)', fill: true, tension: 0.3 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { min: 1000 } } // Graph starts from 1000
+        }
+    });
+</script>

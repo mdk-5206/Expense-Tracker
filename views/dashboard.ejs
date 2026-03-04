@@ -1,0 +1,13 @@
+<h1 class="mb-4 text-center">Dashboard</h1>
+
+<% if (user) { %>
+    <div class="alert alert-success text-center">
+        Welcome back, <strong><%= user.email %></strong>!
+    </div>
+<% } else { %>
+    <div class="alert alert-info text-center">
+        Please <a href="/auth/login">login</a> or <a href="/auth/register">register</a> to start tracking.
+    </div>
+<% } %>
+
+<p class="lead text-center">Start adding your income and expenses.</p>
